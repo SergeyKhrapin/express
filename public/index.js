@@ -1,13 +1,18 @@
 const users = document.getElementById('users')
-const button = document.getElementById('fetch')
+const fetchButton = document.getElementById('fetch')
+const abortButton = document.getElementById('abort')
 
-button.addEventListener('click', fetchUsers)
+const controller = new AbortController()
+const { signal } = controller
+
+fetchButton.addEventListener('click', fetchUsers)
+abortButton.addEventListener('click', abortFetching) // **
 
 async function fetchUsers() {
 	try {
 		await delay(3000)
-		// const response = await fetch('/users/blablabla') // 404
-		const response = await fetch('/users')
+		// const response = await fetch('/users/blablabla') // * 404
+		const response = await fetch('/users', { signal })
 		const { data } = await response.json()
 		const userList = document.createElement('ul')
 
@@ -18,13 +23,18 @@ async function fetchUsers() {
 		})
 
 		// TODO: to improve a performance (reflow/repaint)
-		button.remove()
+		fetchButton.remove()
 		users.append(userList)
 	} catch(e) {
-		// Express recognizes 404 like an error
-		// In fact, 404 is not an error, and catch block does not have to be executed
-		console.log('CATCH')
+		// * Express recognizes 404 like an error. In fact, 404 is not an error, and catch block does not have to be executed
+		// ** Also catch is executed when the request is aborted
+		console.log('CATCH', e)
 	}
+}
+
+function abortFetching() {
+	controller.abort()
+	console.log('Fetch aborted')
 }
 
 async function delay(time) {
