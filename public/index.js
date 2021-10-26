@@ -5,6 +5,7 @@ button.addEventListener('click', fetchUsers)
 
 async function fetchUsers() {
 	try {
+		await delay(3000)
 		// const response = await fetch('/users/blablabla') // 404
 		const response = await fetch('/users')
 		const { data } = await response.json()
@@ -24,4 +25,10 @@ async function fetchUsers() {
 		// In fact, 404 is not an error, and catch block does not have to be executed
 		console.log('CATCH')
 	}
+}
+
+async function delay(time) {
+	return new Promise((resolve) => {
+		setTimeout(resolve, time)
+	})
 }
