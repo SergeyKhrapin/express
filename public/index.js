@@ -1,4 +1,15 @@
-const users = document.getElementById('users')
+import users from './modules/fetchUsers.js'
+import sthFromModule1 from './modules/module1.js'
+import sthFromModule2 from './modules/module2.js'
+import delay from './utils/delay.js'
+
+function displayUsers() {
+	console.log('users', users)
+}
+
+displayUsers()
+
+const usersSection = document.getElementById('users')
 const fetchButton = document.getElementById('fetch')
 const abortButton = document.getElementById('abort')
 
@@ -24,7 +35,7 @@ async function fetchUsers() {
 
 		// TODO: to improve a performance (reflow/repaint)
 		fetchButton.remove()
-		users.append(userList)
+		usersSection.append(userList)
 	} catch(e) {
 		// * Express recognizes 404 like an error. In fact, 404 is not an error, and catch block does not have to be executed
 		// ** Also catch is executed when the request is aborted
@@ -35,10 +46,4 @@ async function fetchUsers() {
 function abortFetching() {
 	controller.abort()
 	console.log('Fetch aborted')
-}
-
-async function delay(time) {
-	return new Promise((resolve) => {
-		setTimeout(resolve, time)
-	})
 }
