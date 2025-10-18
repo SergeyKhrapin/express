@@ -20,4 +20,17 @@ app.get('/users', function (req, res) {
     })
 })
 
+app.post('/login', function (req, res) {
+    const { email, password } = req.body
+
+    if (email !== 'khrapins@gmail.com' || password !== '12345') {
+        console.log('fail')
+        res.status(401).send('Wrong credentials')
+    } else {
+        res.json({
+            access_token: '666'
+        })
+    }
+})
+
 app.listen(3000)

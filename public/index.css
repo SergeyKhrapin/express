@@ -1,3 +1,39 @@
-.section {
+.main {
+  display: flex;
+  justify-content: space-between;
+}
+
+#loginForm {
+  position: relative;
   display: none;
+  justify-content: center;
+  align-items: flex-end;
+  margin-top: 20px;
+  padding: 40px;
+  border: 1px solid #000;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+  margin: 0 10px;
+}
+
+.label input {
+  margin-top: 6px;
+}
+
+#correctCredentials {
+  display: none;
+  color: green;
+  position: absolute;
+  top: 8px;
+}
+
+#errorCredentials {
+  display: none;
+  color: red;
+  position: absolute;
+  top: 8px;
 }

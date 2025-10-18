@@ -35,10 +35,32 @@
     </ul>
   </section> -->
 
-	<div id="users">
-		<button id="fetch">Fetch users</button>
-		<button id="abort">Abort fetch</button>
-	</div>
+  <section class="main">
+    <div id="users">
+      <button id="fetch" disabled>Fetch users</button>
+      <button id="abort" disabled>Abort fetch</button>
+    </div>
+  
+    <div>
+      <button id="loginButton">Login</button>
+    </div>
+  </section>
+
+  <section>
+    <form id="loginForm" action="/login" method="POST">
+      <span id="errorCredentials">Wrong credentials</span>
+      <span id="correctCredentials">Login is successful</span>
+      <label class="label">
+        Email
+        <input type="email" name="email" placeholder="Put your email" required>
+      </label>
+      <label class="label">
+        Password
+        <input type="password" name="password" placeholder="Put your password" required>
+      </label>
+      <input type="submit" id="submitButton">
+    </form>
+  </section>
 
   <script type="module" src="index.js"></script>
 </body>
