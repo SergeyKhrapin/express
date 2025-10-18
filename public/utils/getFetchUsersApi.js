@@ -1,20 +1,25 @@
 import delay from './delay.js'
 
-export function getFetchApi() {
+export function getFetchUsersApi() {
 	const controller = new AbortController()
 	const { signal } = controller
 
-	async function fetchUsers() {
+	async function fetchUsers(token) {		
 		try {
-			await delay(3000)
+			await delay(1500)
 			// const response = await fetch('/users/blablabla') // * 404
-			const response = await fetch('/users', { signal })
+			const response = await fetch('/users', {
+				headers: {
+					Authorization: `Bearer ${token}`
+				},
+				signal
+			})
 			const { data } = await response.json()
 			return data
 		} catch(e) {
 			// * Express recognizes 404 like an error. In fact, 404 is not an error, and catch block does not have to be executed
 			// ** Also catch is executed when the request is aborted
-			console.log('CATCH', e)
+			return new Error("Login is required");
 		}
 	}
 

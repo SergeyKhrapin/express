@@ -3,6 +3,10 @@
   justify-content: space-between;
 }
 
+#users {
+  position: relative;
+}
+
 #loginForm {
   position: relative;
   display: none;
@@ -26,14 +30,28 @@
 
 #correctCredentials {
   display: none;
-  color: green;
   position: absolute;
   top: 8px;
 }
 
 #errorCredentials {
   display: none;
-  color: red;
   position: absolute;
   top: 8px;
+}
+
+#errorFetch {
+  position: absolute;
+  bottom: -22px;
+  left: 0;
+}
+
+.error {
+  font-size: 14px;
+  color: red;
+}
+
+.success {
+  font-size: 14px;
+  color: green;
 }

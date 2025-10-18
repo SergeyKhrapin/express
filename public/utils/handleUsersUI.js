@@ -1,4 +1,9 @@
+const fetchButton = document.getElementById('fetch')
+const abortButton = document.getElementById('abort')
+
 export function renderUsers(users) {
+	console.log('users', users);
+	
 	const usersSection = document.getElementById('users')
 	const userList = document.createElement('ul')
 
@@ -12,4 +17,9 @@ export function renderUsers(users) {
 	fetchButton.remove()
 	abortButton.remove()
 	usersSection.append(userList)
+}
+
+export function renderFetchErrorMessage(msg) {
+	const errorMsg = document.getElementById('errorFetch')
+	errorMsg.innerText = msg
 }

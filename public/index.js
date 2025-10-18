@@ -1,29 +1,36 @@
-import { getFetchApi } from './utils/getFetchApi.js'
-import { renderUsers } from './utils/renderUsers.js'
+import { getFetchUsersApi } from './utils/getFetchUsersApi.js'
+import { renderUsers, renderFetchErrorMessage } from './utils/handleUsersUI.js'
 import { login } from './utils/login.js'
 import { handleLoginUI } from './utils/handleLoginUI.js'
 
 // addRouting()
+
+let accessToken
 
 const fetchButton = document.getElementById('fetch')
 const abortButton = document.getElementById('abort')
 const loginButton = document.getElementById('loginButton')
 const loginForm = document.getElementById('loginForm')
 
-const { fetchUsers, abortFetching } = getFetchApi()
+const { fetchUsers, abortFetching } = getFetchUsersApi()
 
 loginButton.addEventListener('click', () => {
 	loginForm.style.display = 'flex'
 })
 
 loginForm.addEventListener('submit', async (e) => {
-	const access_token = await login(loginForm, e)
-	handleLoginUI(access_token)
+	accessToken = await login(loginForm, e)
+	handleLoginUI(accessToken)
 })
 
 fetchButton.addEventListener('click', async () => {
-	const data = await fetchUsers()
-	renderUsers(data)
+	const result = await fetchUsers(accessToken)
+	
+	if (result instanceof Error) {
+		renderFetchErrorMessage(result.message)
+	} else {
+		renderUsers(result)
+	}
 })
 
 abortButton.addEventListener('click', abortFetching) // **
