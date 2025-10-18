@@ -1,4 +1,4 @@
-import delay from './delay.js'
+import delay from '../delay.js'
 
 export function getFetchUsersApi() {
 	const controller = new AbortController()

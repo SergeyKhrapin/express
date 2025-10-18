@@ -1,7 +1,7 @@
-import { getFetchUsersApi } from './utils/getFetchUsersApi.js'
-import { renderUsers, renderFetchErrorMessage } from './utils/handleUsersUI.js'
-import { login } from './utils/login.js'
-import { handleLoginUI } from './utils/handleLoginUI.js'
+import { getFetchUsersApi } from './utils/fetch/getFetchUsersApi.js'
+import { renderUsers, renderFetchErrorMessage } from './utils/ui/handleUsersUI.js'
+import { login } from './utils/fetch/login.js'
+import { handleLoginUI } from './utils/ui/handleLoginUI.js'
 
 // addRouting()
 

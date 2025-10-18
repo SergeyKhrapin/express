@@ -1,4 +1,4 @@
-import delay from './delay.js'
+import delay from '../delay.js'
 import { renderFetchErrorMessage } from './handleUsersUI.js'
 
 export async function handleLoginUI(access_token) {
