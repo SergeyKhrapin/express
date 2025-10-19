@@ -20,7 +20,7 @@
 .label {
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 200px;
   margin: 0 10px;
 }
 

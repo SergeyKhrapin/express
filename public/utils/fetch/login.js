@@ -15,10 +15,14 @@ export async function login(form, e) {
 
     if (res.ok) {
       const { access_token } = await res.json()
-
+      
       return access_token
     }    
   } catch(e) {
     console.log('catch', e);
   }
+}
+
+export function refreshToken() {
+  fetch('/refresh')
 }

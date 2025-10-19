@@ -26,9 +26,10 @@ loginForm.addEventListener('submit', async (e) => {
 fetchButton.addEventListener('click', async () => {
 	const result = await fetchUsers(accessToken)
 	
-	if (result instanceof Error) {
-		renderFetchErrorMessage(result.message)
-	} else {
+	// TODO: fix - it doesn't execute after refreshing token
+	if (result?.status === 401) {
+		renderFetchErrorMessage('Login is required')
+	} else if (result) {
 		renderUsers(result)
 	}
 })
