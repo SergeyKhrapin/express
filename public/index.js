@@ -14,6 +14,13 @@ const loginForm = document.getElementById('loginForm')
 
 const { fetchUsers, abortFetching } = getFetchUsersApi()
 
+window.addEventListener('load', async () => {
+	const response = await fetch('/refresh')
+	const data = await response.json()
+	
+	accessToken = data.access_token
+})
+
 loginButton.addEventListener('click', () => {
 	loginForm.style.display = 'flex'
 })

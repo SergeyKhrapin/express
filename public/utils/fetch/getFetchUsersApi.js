@@ -1,6 +1,5 @@
 import delay from '../delay.js'
 import { fetchWithRefresh } from './fetchWithRefresh.js'
-import { renderUsers, renderFetchErrorMessage } from '../ui/handleUsersUI.js'
 
 export function getFetchUsersApi() {
 	const controller = new AbortController()

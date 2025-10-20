@@ -3,6 +3,7 @@ const { static: staticExpress, urlencoded, json } = express
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
 const cookieParser = require('cookie-parser')
+const data = require('./db.json')
 
 dotenv.config()
 
@@ -18,6 +19,13 @@ app.use(staticExpress("public"))
 app.use(urlencoded({ extended: true }))
 app.use(json())
 app.use(cookieParser())
+
+function issueTokens(payload) {
+	const access_token = jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRARTION })
+	const refresh_token = jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRARTION })
+
+	return { access_token, refresh_token }
+}
 
 app.use((req, res, next) => {
 	if (REQUESTS_AUTH_NOT_REQUIRED.includes(req.path)) {
@@ -41,15 +49,9 @@ app.use((req, res, next) => {
 	})
 })
 
-const users = [
-	{ id: 1, firstName: 'Petro', lastName: 'Petrenko', age: 30 },
-	{ id: 2, firstName: 'Dmytro', lastName: 'Dmytrenko', age: 18 },
-	{ id: 3, firstName: 'Tom', lastName: 'Hanks', age: 65 },
-]
-
 app.get('/users', function (req, res) {
 	const queryID = req.query.id
-	const responseData = queryID ? users.filter(user => user.id.toString() === queryID) : users
+	const responseData = queryID ? data?.users?.filter(user => user.id.toString() === queryID) : data?.users
 	
 	res.json({
 		data: responseData
@@ -59,20 +61,17 @@ app.get('/users', function (req, res) {
 app.post('/login', function (req, res) {
 	const { email, password } = req.body
 
-	if (email !== 'khrapins@gmail.com' || password !== '12345') {
-		res
-			.status(401)
-			.json({ error: 'Wrong credentials' })
-	} else {
-		const payload = { email }
-		const access_token = jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRARTION })
-		const refresh_token = jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRARTION })
+	const isValidUser = data?.registeredUsers?.some((user) => (
+		email === user.email && password === user.password
+	))
 
-		res
-			.cookie('refresh_token', refresh_token, {
-				httpOnly: true
-			})
-			.json({	access_token })
+	if (isValidUser) {
+		const payload = { email }
+		const { access_token, refresh_token } = issueTokens(payload)
+
+		res.cookie('refresh_token', refresh_token, { httpOnly: true }).json({	access_token })
+	} else {
+		res.status(401).json({ error: 'Wrong credentials' })
 	}
 })
 
@@ -86,12 +85,12 @@ app.get('/refresh', function (req, res) {
 		const payload = { email }
 
 		// Issue new access and refresh tokens
-		const access_token = jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRARTION })
-		const refresh_token = jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRARTION })
+		const { access_token, refresh_token } = issueTokens(payload)
 
 		res
 			.cookie('refresh_token', refresh_token, {
-				httpOnly: true
+				httpOnly: true,
+				sameSite: 'strict'
 			})
 			.json({	access_token })
 	})
