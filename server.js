@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
 const cookieParser = require('cookie-parser')
 const data = require('./db.json')
+const crypto = require('crypto')
 
 dotenv.config()
 
@@ -20,11 +21,14 @@ app.use(urlencoded({ extended: true }))
 app.use(json())
 app.use(cookieParser())
 
-function issueTokens(payload) {
-	const access_token = jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRARTION })
-	const refresh_token = jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRARTION })
+function issueTokensAndHandleResponse(res, payload) {
+	const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRARTION })
+	const refreshToken = jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRARTION })
+	const csrfToken = crypto.randomBytes(32).toString("hex")
 
-	return { access_token, refresh_token }
+	res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' })
+	res.cookie('csrfToken', csrfToken, { httpOnly: true, sameSite: 'strict' })
+	res.json({ accessToken, csrfToken })
 }
 
 app.use((req, res, next) => {
@@ -37,12 +41,20 @@ app.use((req, res, next) => {
 		['jwt expired']: 403,
 	}
 	
-	const authHeader = req.headers.authorization
-	const token = authHeader?.split('Bearer ')[1]	
+	const csrfTokenHeader = req.get('X-CSRF-Token')
+  const csrfTokenCookie = req.cookies.csrfToken
 
-	jwt.verify(token, ACCESS_TOKEN_SECRET, (err) => {		
+	// verify CSRF token
+  if (!csrfTokenHeader || !csrfTokenCookie || csrfTokenHeader !== csrfTokenCookie) {		
+		res.status(401).json({ error: 'Authorization is required' })
+		next()
+	}
+
+	const accessToken = req.get('authorization')?.split('Bearer ')[1]
+	
+	// verify access token
+	jwt.verify(accessToken, ACCESS_TOKEN_SECRET, (err) => {
 		if (err) {
-			// token is invalid or expired
 			return res.status(errorStatusMap[err.message]).json({ error: err.message })
 		}
 		next()
@@ -67,32 +79,23 @@ app.post('/login', function (req, res) {
 
 	if (isValidUser) {
 		const payload = { email }
-		const { access_token, refresh_token } = issueTokens(payload)
-
-		res.cookie('refresh_token', refresh_token, { httpOnly: true }).json({	access_token })
+		issueTokensAndHandleResponse(res, payload)
 	} else {
 		res.status(401).json({ error: 'Wrong credentials' })
 	}
 })
 
 app.get('/refresh', function (req, res) {
-	const { refresh_token } = req.cookies
+	const refreshToken = req.cookies.refreshToken
 
-	jwt.verify(refresh_token, REFRESH_TOKEN_SECRET, (err, decoded) => {		
+	jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decoded) => {		
 		if (err) return res.status(403).json({ error: err.message }) // refresh token is invalid
 
 		const { email } = decoded
 		const payload = { email }
 
-		// Issue new access and refresh tokens
-		const { access_token, refresh_token } = issueTokens(payload)
-
-		res
-			.cookie('refresh_token', refresh_token, {
-				httpOnly: true,
-				sameSite: 'strict'
-			})
-			.json({	access_token })
+		// Issue new tokens
+		issueTokensAndHandleResponse(res, payload)
 	})
 })
 

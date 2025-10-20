@@ -12,11 +12,9 @@ export async function login(form, e) {
         password: formData.get("password"),
       })
     })
-
     if (res.ok) {
-      const { access_token } = await res.json()
-      
-      return access_token
+      const { accessToken, csrfToken } = await res.json()
+      return { accessToken, csrfToken }
     }    
   } catch(e) {
     console.log('catch', e);

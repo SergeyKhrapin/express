@@ -1,10 +1,7 @@
-const fetchButton = document.getElementById('fetch')
-const abortButton = document.getElementById('abort')
-
 export function renderUsers(users) {	
 	const usersSection = document.getElementById('users')
-	let userList = document.getElementById('userList')	
-
+	let userList = document.getElementById('userList')
+	
 	if (userList) {
 		userList.innerHTML = ''
 	} else {
@@ -17,10 +14,7 @@ export function renderUsers(users) {
 		userItem.innerText = user.firstName + ' ' + user.lastName
 		userList.append(userItem)
 	})
-
-	// TODO: improve a performance (reflow/repaint)
-	// fetchButton.remove()
-	// abortButton.remove()
+	
 	usersSection.append(userList)
 }
 

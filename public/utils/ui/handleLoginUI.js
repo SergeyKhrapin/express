@@ -1,7 +1,7 @@
 import delay from '../delay.js'
 import { renderFetchErrorMessage } from './handleUsersUI.js'
 
-export async function handleLoginUI(access_token) {
+export async function handleLoginUI(accessToken) {
   const fetchButton = document.getElementById('fetch')
   const abortButton = document.getElementById('abort')
   const loginForm = document.getElementById('loginForm')
@@ -10,7 +10,7 @@ export async function handleLoginUI(access_token) {
 
   errorCredentials.style.display = 'none'
 
-  if (access_token) {
+  if (accessToken) {
     correctCredentials.style.display = 'block'
     renderFetchErrorMessage('')
     await delay(1500)
