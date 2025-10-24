@@ -12,7 +12,7 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET
 const ACCESS_TOKEN_EXPIRARTION = 20
 const REFRESH_TOKEN_EXPIRARTION = '7d'
-const REQUESTS_AUTH_NOT_REQUIRED = ['/login', '/refresh']
+const REQUESTS_AUTH_NOT_REQUIRED = ['/login', '/refresh', '/proxy']
 
 const app = express()
 
@@ -98,5 +98,33 @@ app.get('/refresh', function (req, res) {
 		issueTokensAndHandleResponse(res, payload)
 	})
 })
+
+// Allow to make cross-origin requests to target url
+app.get('/proxy', async (req, res) => {
+	const target = req.query.url;
+
+  if (!target) {
+		return res.status(400).send('Missing ?url param')
+	};
+	
+  const response = await fetch(target)
+	const contentType = response.headers.get('content-type')
+	
+  res.set('Access-Control-Allow-Origin', '*')
+	res.set('Content-Type', contentType)
+
+	if (contentType.includes('application/json')) {
+      const jsonData = JSON.parse(Buffer.from(response.data).toString('utf-8'));
+      res.json(jsonData);
+    } 
+    // Handle text
+    else if (contentType.startsWith('text/')) {
+      res.send(Buffer.from(response.data).toString('utf-8'));
+    } 
+    // Handle binary (image, video, etc.)
+    else {
+			res.send(response.data)
+    }
+});
 
 app.listen(3000)

@@ -27,9 +27,24 @@ export async function fetchWithRefresh(url, beforeFetchCallback, afterFetchSucce
   } else if (response.status === 401) { // no token
     result = await response.json()
   } else {
-    const { data } = await response.json()
-    result = data
+    const contentType = response.headers.get('Content-Type')
+
+    if (contentType.includes('application/json')) {
+      const { data } = await response.json()
+      result = data
+    } 
+    // Handle text
+    else if (contentType.startsWith('text/')) {
+      const { data } = await response.text()
+      result = data
+    } 
+    // Handle binary (image, video, etc.)
+    else {
+      result = await response.blob()
+    }
   }
 
-  afterFetchSuccessCallback(result)    
+  afterFetchSuccessCallback?.(result)
+
+  return result
 }
