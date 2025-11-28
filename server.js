@@ -12,7 +12,7 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET
 const ACCESS_TOKEN_EXPIRARTION = 20
 const REFRESH_TOKEN_EXPIRARTION = '7d'
-const REQUESTS_AUTH_NOT_REQUIRED = ['/login', '/refresh', '/proxy']
+const REQUESTS_AUTH_NOT_REQUIRED = ['/login', '/refresh', '/proxy', '/service-worker.js']
 
 const app = express()
 

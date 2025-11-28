@@ -1,5 +1,5 @@
-const sthFromModule2 = { sthFromModule2: 222 }
+const objFromModule2 = { a: 222 }
 
-console.log('Module 2 is loaded')
+console.log('module2 has been loaded')
 
-export default sthFromModule2
+export default objFromModule2

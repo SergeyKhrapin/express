@@ -5,3 +5,9 @@
 - custom delay response
 - abort response (AbortController)
 - top level await
+
+## How to run app
+
+npm run start
+
+App will be available on http://localhost:3000/
