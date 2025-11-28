@@ -5,6 +5,8 @@
 - custom delay response
 - abort response (AbortController)
 - top level await
+- service worker
+- module preload
 
 ## How to run app
 
