@@ -42,32 +42,87 @@ loginForm.addEventListener('submit', async (e) => {
 })
 
 fetchButton.addEventListener('click', async () => {
-	fetchWithRefresh(
-		'/users',
-		async () => {
+	fetchWithRefresh({
+		url: '/users',
+		beforeFetchCallback: async () => {
 			await delay(1500)
 		},
-		(data) => {
+		afterFetchSuccessCallback: (data) => {
 			// TODO: fix - it doesn't execute after refreshing token
 			if (data?.error) {
 				renderFetchErrorMessage('Login is required')
 			} else if (data) {
 				renderUsers(data)
 			}
-		},
-	)
+		}
+	})
 })
 
 // abortButton.addEventListener('click', abortFetching) // **
 
+// Service worker - START
 function registerServiceWorker(path) {
 	if ('serviceWorker' in navigator) {
 		navigator.serviceWorker.register(path)
-			.then((data) => {
-				console.log('SW registered', data)
-			})
-			.catch(console.error)
+		.then((data) => {
+			console.log('SW registered', data)
+		})
+		.catch(console.error)
 	}
 }
 
-registerServiceWorker('/service-worker.js')
+// registerServiceWorker('/service-worker.js')
+// Service worker - END
+
+// SSE - START
+
+// POST-based SSE - start
+async function connectPostBasedSSE(path) {
+	const response = await fetch(
+		path,
+		{
+			method: 'POST',
+			body: JSON.stringify({
+				message: 'Hi, tell me about...'
+			}),
+			headers: {
+    		"Accept": "text/event-stream"
+			}
+		}
+	)
+
+	const reader = response.body.getReader();
+	const decoder = new TextDecoder();
+
+	while (true) {
+		const { value, done } = await reader.read();
+		if (done) break;
+
+		const chunk = decoder.decode(value, { stream: true });
+		console.log("chunk:", chunk);
+	}
+}
+
+// connectPostBasedSSE('/conversation-post') // POST request
+// POST-based SSE - end
+
+// EventSource SSE - start
+function connectEventSourceSSE(path) {	
+	const evtSource = new EventSource(path, {
+		withCredentials: true,
+	})
+
+	evtSource.onmessage = (event) => {
+		console.log("chunk:", event.data);
+		
+		if (JSON.parse(event.data).done) {			
+			evtSource.close()
+		}
+	}
+}
+
+connectEventSourceSSE('/conversation-eventSource') // GET request
+// EventSource SSE - end
+
+// SSE - END
+

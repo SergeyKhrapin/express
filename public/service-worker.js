@@ -3,7 +3,7 @@ self.addEventListener('fetch', event => {
   
   event.respondWith(
     caches.match(event.request).then(cached => {
-      if (excludeUrl.includes(event.request.url.split('://')[0])) {
+      if (excludeUrl.includes(event.request.url.split('://')[0]) || event.request.method === 'POST') {
         return fetch(event.request)
       }
       // If cached, return from cache

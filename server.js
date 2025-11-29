@@ -12,7 +12,14 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET
 const ACCESS_TOKEN_EXPIRARTION = 20
 const REFRESH_TOKEN_EXPIRARTION = '7d'
-const REQUESTS_AUTH_NOT_REQUIRED = ['/login', '/refresh', '/proxy', '/service-worker.js']
+const REQUESTS_AUTH_NOT_REQUIRED = [
+	'/login',
+	'/refresh',
+	'/proxy',
+	'/service-worker.js',
+	'/conversation-eventSource',
+	'conversation-post'
+]
 
 const app = express()
 
@@ -98,6 +105,41 @@ app.get('/refresh', function (req, res) {
 		issueTokensAndHandleResponse(res, payload)
 	})
 })
+
+// SSE - START
+
+function handleSSE(req, res) {
+	res.set('Content-Type', 'text/event-stream')
+	res.set("Cache-Control", "no-cache");
+  res.set("Connection", "keep-alive");
+  res.flushHeaders();
+
+	const text = "Here is an answer from AI chat"
+	const textArray = text.split(' ')
+  let i = 0
+
+  const interval = setInterval(() => {
+    if (i < textArray.length) {
+      res.write(`data: ${JSON.stringify({ chunk: textArray[i] })}\n\n`)
+      i++
+    } else {
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`)
+      clearInterval(interval)
+      res.end()
+    }
+  }, 500)
+
+  req.on("close", () => {
+    console.log("Client disconnected")
+    clearInterval(interval)
+    res.end()
+  });
+}
+
+app.get('/conversation-eventSource', handleSSE) // EventSource SSE
+app.post('/conversation-post', handleSSE) // POST-based SSE
+
+// SSE - END
 
 // Allow to make cross-origin requests to target url
 app.get('/proxy', async (req, res) => {

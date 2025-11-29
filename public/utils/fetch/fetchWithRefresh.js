@@ -1,11 +1,13 @@
 import { tokens } from '../../index.js'
 
-export async function fetchWithRefresh(url, beforeFetchCallback, afterFetchSuccessCallback) {
+export async function fetchWithRefresh({url, options = {}, beforeFetchCallback, afterFetchSuccessCallback}) {
   let result
 
   async function fetchData(urlToFetch) {
     return fetch(urlToFetch, {
+      ...options,
       headers: {
+        ...options.headers,
         ['Authorization']: tokens.accessToken ? `Bearer ${tokens.accessToken}` : '',
         ['X-CSRF-Token']: tokens.csrfToken ?? ''
       }
@@ -33,12 +35,12 @@ export async function fetchWithRefresh(url, beforeFetchCallback, afterFetchSucce
       const { data } = await response.json()
       result = data
     } 
-    // Handle text
-    else if (contentType.startsWith('text/')) {
+    // handle text
+    else if (contentType.startsWith('text/plain') || contentType.startsWith('text/html')) {
       const { data } = await response.text()
       result = data
-    } 
-    // Handle binary (image, video, etc.)
+    }
+    // handle binary (image, video, etc.)
     else {
       result = await response.blob()
     }
