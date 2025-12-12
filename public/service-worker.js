@@ -1,6 +1,6 @@
 self.addEventListener('fetch', event => {
   const excludeUrl = ['chrome-extension']
-  
+
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (excludeUrl.includes(event.request.url.split('://')[0]) || event.request.method === 'POST') {
